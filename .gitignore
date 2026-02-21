@@ -1,0 +1,66 @@
+# Node.js
+node_modules/
+
+# Logs
+logs/
+*.log
+
+# Docker
+*.dockerfile
+Dockerfile*
+
+# Local env
+.env
+
+# Misc
+*.swp
+*.swo
+
+# VS Code
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Node.js
+node_modules/
+
+# NestJS
+dist/
+
+# Logs
+logs/
+*.log
+
+# Docker
+*.dockerfile
+Dockerfile*
+
+# Local env
+.env
+
+# Misc
+*.swp
+*.swo
+
+# VS Code
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Terraform
+*.tfstate
+*.tfstate.backup
+.terraform/
+
+# GitHub Actions
+# (No ignore for .github/workflows)
+
+# CSV credentials
+*.csv
+
+# Scripts locales
+get_github_secrets.ps1

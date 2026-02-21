@@ -1,0 +1,58 @@
+name: Deploy to AWS ECS Fargate
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    env:
+      AWS_REGION: us-east-1
+      ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+      ECS_CLUSTER: ${{ secrets.ECS_CLUSTER }}
+      ECS_SERVICE: ${{ secrets.ECS_SERVICE }}
+      TASK_DEFINITION: ${{ secrets.TASK_DEFINITION }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+        - name: Set repo name lowercase
+          run: |
+            REPO_NAME="GamboaAWSParcial1"
+            REPO_NAME_LOWER=$(echo "$REPO_NAME" | tr '[:upper:]' '[:lower:]')
+            echo "REPO_NAME_LOWER=$REPO_NAME_LOWER" >> $GITHUB_ENV
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build Docker image
+        run: |
+          docker build -t $ECR_REPOSITORY:latest .
+
+      - name: Push Docker image to ECR
+        run: |
+          docker push $ECR_REPOSITORY:latest
+
+      - name: Update ECS service
+        run: |
+          aws ecs update-service \
+            --cluster $ECS_CLUSTER \
+            --service $ECS_SERVICE \
+            --force-new-deployment
+
+      - name: Update task definition image
+        run: |
+          aws ecs describe-task-definition --task-definition $TASK_DEFINITION > task-def.json
+          IMAGE_URI=$ECR_REPOSITORY:latest
+          jq --arg IMAGE_URI "$IMAGE_URI" '.taskDefinition.containerDefinitions[0].image = $IMAGE_URI' task-def.json > new-task-def.json
+          aws ecs register-task-definition --cli-input-json file://new-task-def.json
