@@ -10,5 +10,5 @@ variable "app_name" {
 
 variable "container_image" {
   description = "Container image URI"
-  default     = "nginx:latest"
+  default     = "296062576190.dkr.ecr.us-east-1.amazonaws.com/demo-app-gg"
 }
