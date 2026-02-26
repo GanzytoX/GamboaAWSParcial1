@@ -54,5 +54,9 @@ jobs:
         run: |
           aws ecs describe-task-definition --task-definition $TASK_DEFINITION > task-def.json
           IMAGE_URI=$ECR_REPOSITORY:latest
-          jq --arg IMAGE_URI "$IMAGE_URI" '.taskDefinition.containerDefinitions[0].image = $IMAGE_URI' task-def.json > new-task-def.json
+          jq --arg IMAGE_URI "$IMAGE_URI" '
+            .taskDefinition
+            | del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy, .deregisteredAt)
+            | .containerDefinitions[0].image = $IMAGE_URI
+          ' task-def.json > new-task-def.json
           aws ecs register-task-definition --cli-input-json file://new-task-def.json
