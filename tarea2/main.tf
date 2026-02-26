@@ -217,9 +217,9 @@ resource "aws_ecs_service" "app" {
   launch_type     = "FARGATE"
   desired_count   = 1
   network_configuration {
-    subnets         = [aws_subnet.private.id]
+    subnets         = [aws_subnet.public_a.id, aws_subnet.public_b.id]
     security_groups = [aws_security_group.ecs_sg.id]
-    assign_public_ip = false
+    assign_public_ip = true
   }
   load_balancer {
     target_group_arn = aws_lb_target_group.tg.arn
